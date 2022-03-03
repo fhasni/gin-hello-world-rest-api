@@ -1,4 +1,7 @@
-FROM golang:1.12-alpine
+###################
+# BUILD STAGE #####
+###################
+FROM golang:1.12-alpine AS builder
 
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
@@ -12,6 +15,15 @@ RUN go mod download
 COPY . .
 
 RUN  go build -o main
+
+###################
+# RUN STAGE #######
+###################
+FROM golang:1.12-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/main main
 
 EXPOSE 8080
 
